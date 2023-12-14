@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Device Information</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Smart Device Information</h1>
+    <form action="/submit_info" method="post">
+        <label for="device_type">Device Type:</label>
+        <select id="device_type" name="device_type">
+            <option value="">Select...</option>
+            <option value="refrigerator">Refrigerator</option>
+            <option value="fan">Fan</option>
+            <option value="light">Light</option>
+        </select>
+        <br>
+        <label for="device_model">Device Model:</label>
+        <select id="device_model" name="device_model">
+            <option value="">Select...</option>
+            <option value="philips-bulb">philips-bulb</option>
+            <option value="dyson-fan">dyson-fan</option>
+            <option value="lg-fridge">lg-fridge</option>
+        </select>
+        <br>
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>
