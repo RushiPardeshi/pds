@@ -1,11 +1,18 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import text
 from datetime import datetime
+from api.devices.devices import devices
+from api.serviceLocations.serviceLocation import serviceLocation
+from api.user.customer import customer
+from db import init_app, db
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:root123@localhost/comedy_show'
-db = SQLAlchemy(app)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:root123@localhost/shems'
+app.register_blueprint(devices)
+app.register_blueprint(serviceLocation)
+app.register_blueprint(customer)
+init_app(app)
 
 # Sample data (you might want to use a database in practice)
 service_locations = [
@@ -36,7 +43,6 @@ def add_location():
     loc_id = request.form['loc_id']
     addr = request.form['addr']
     zipcode = request.form['zipcode']
-
     # Add new location to the list
     service_locations.append({"loc_id": loc_id, "addr": addr, "zipcode": zipcode})
     return render_template('index.html', locations=service_locations, devices=smart_devices)
