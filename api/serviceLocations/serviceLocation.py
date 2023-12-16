@@ -37,10 +37,10 @@ def getLocations():
 
 # get service location by id
 @serviceLocation.route("/locations/<loc_id>", methods=['GET'])
-def getLocationsByUserID():
+def getLocationsByUserID(loc_id):
     result = db.session.execute(text('''Select * 
                                      from service_loc sl  
-                                     where sl.loc_id = ?'''), (loc_id, )).fetchall()
+                                     where sl.loc_id = :loc_id'''), params={'loc_id': loc_id}).fetchall()
     return result
 
 # add location
@@ -57,8 +57,18 @@ def addLocation():
         num_occupants = payload['noccupants']
         zipcode = payload['zipcode']
         device_id = str(getNextLocId())
+        params = {
+            'loc_id': loc_id,
+            'cust_id': cust_id,
+            'addr': addr,
+            'date': date,
+            'area': area,
+            'nbed': num_beds,
+            'noccupants': num_occupants,
+            'zipcode': zipcode
+        }
         db.session.execute(text('''Insert into service_loc(loc_id, cust_id, addr, date, area, num_beds, num_occupants, zipcode) 
-                                values (?,?,?,?,?,?,?,?)'''), (loc_id, cust_id, addr, date, area, num_beds, num_occupants, zipcode, ))
+                                values (:loc_id, :cust_id, :addr, :date, :area, :nbed, :noccupants, :zipcode)'''), params)
         db.session.commit()
         return jsonify({'status': 'error', 'msg': 'Record added successfully'})
         
@@ -67,9 +77,9 @@ def addLocation():
 
 # delete device
 @serviceLocation.route("/location/<loc_id>", methods=['DELETE'])
-def deleteLocation():
+def deleteLocation(loc_id):
     try:
-        db.session.execute(text("Delete from service_loc where dev_id=?"), (loc_id,))
+        db.session.execute(text("Delete from service_loc where loc_id=:loc_id"), params={'loc_id': loc_id})
         db.session.commit()
         return jsonify({'status': 'error', 'msg': 'Record deleted successfully'})
     except Exception as e:
@@ -77,6 +87,5 @@ def deleteLocation():
     
 def getNextLocId():
     # write a sequence in the database and get id from it
-    last_db_id = db.session.execute(text("Select loc_id from service_loc order by loc_id desc")).fetchone()['loc_id']
-    last_db_id_number = int(last_db_id.split("-")[1])
-    return 'l-' + str(last_db_id_number+1)
+    last_db_id = db.session.execute(text("Select loc_id from service_loc order by loc_id desc")).fetchone()[0]
+    return str(int(last_db_id)+1)
