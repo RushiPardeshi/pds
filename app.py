@@ -24,24 +24,28 @@ cust = [
 
 @app.route('/')
 def index():
+    print("idhar pakka")
     return render_template('index.html')
 
 @app.route('/login', methods=['GET','POST'])
 def login():
+    print("idhar bhi aaya")
     if request.method =="POST":
+        print("something")
         name = request.form.get("name")
         addr = request.form.get("address")
         result = db.session.execute(text("select * from customer where customer.name={name} and customer.address={addr}"))
         ans = result.fetchall()
         print(ans)
-
+        
         return render_template("model.html")
 
     return render_template("login.html")
 
-@app.route('/model',methods=['GET','POST'])
+@app.route('/{cust}/model', methods = ['GET','POST'])
 def model():
     return render_template("register.html")
+
 
 
 
