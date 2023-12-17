@@ -5,6 +5,7 @@ from datetime import datetime
 from api.devices.devices import devices
 from api.serviceLocations.serviceLocation import serviceLocation
 from api.user.customer import customer
+from api.views.view import view
 from db import init_app, db
 
 app = Flask(__name__)
@@ -12,6 +13,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:root123@localhost/shems'
 app.register_blueprint(devices)
 app.register_blueprint(serviceLocation)
 app.register_blueprint(customer)
+app.register_blueprint(view)
 init_app(app)
 
 # Sample data (you might want to use a database in practice)
