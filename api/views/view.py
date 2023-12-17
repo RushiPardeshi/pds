@@ -24,7 +24,7 @@ def customerEnergyConsumed(cust_id):
                         event e
                     WHERE
                         sl.cust_id = :cust_id
-                        e.label = 'energy use'
+                        AND e.label = 'energy use'
                         AND DATE(e.timestamp) >= :start_date
                         AND DATE(e.timestamp) < :end_date
                     GROUP BY
@@ -35,13 +35,13 @@ def customerEnergyConsumed(cust_id):
     date_labels, energy_consumed_data = [], []
     for r in result:
         date_labels.append(r[1])
-        energy_consumed_data(r[2])
-    
+        energy_consumed_data.append(r[2])
+
     return render_template("energyConsumed.html", date_labels = date_labels, values = energy_consumed_data)
 
-
-@view.route('/user/<cust_id>/energyCompare/<loc_id>', methods=['GET'])
-def locationEnergyUsedAgainstOtherLocations(cust_id, loc_id):
+# this will be a tabular format of the data of locations of a customer against similar locations
+@view.route('/user/<cust_id>/energyCompare', methods=['GET'])
+def locationEnergyUsedAgainstOtherLocations(cust_id):
     start_date = request.get_json()['start_date']
     end_date = request.get_json()['end_date']
     params = {'cust_id': cust_id, 'start_date': start_date, 'end_date': end_date}
@@ -95,3 +95,29 @@ def locationEnergyUsedAgainstOtherLocations(cust_id, loc_id):
         energy_consumption_percentage.append(r[3])
 
     return render_template('comparison.html', labels = address, energy_consumed = energy_consumed, relative_percentage_data = energy_consumption_percentage)
+
+
+# Energy consumption per device during a time period
+@view.route('/user/<cust_id>/pdEnergyConsumed/<loc_id>', methods=['GET'])
+def energyConsumedPerDevice(cust_id, loc_id):
+    start_time = request.get_json()['start_date']
+    end_time = request.get_json()['end_date']
+    params = {'start_time': start_time, 'end_time': end_time, 'cust_id': cust_id, 'loc_id': loc_id}
+
+    query = text('''Select d.dev_id, e.curr_settings, sl.addr, m.model_name, m.model_type, sum(value) as energy_consumed 
+                    from service_loc sl 
+                    natural join device d
+                    natural join model m  
+                    natural join event e 
+                    where sl.cust_id = :cust_id
+                    and sl.loc_id = :loc_id
+                    and DATE(e.timestamp) between :start_time and :end_time
+                    group by d.dev_id, e.curr_settings, sl.addr, m.model_name, m.model_type''')
+    
+    result = db.session.execute(query, params)
+    labels, data = [], []
+    for r in result:
+        curr_setting = r[1] + ' ' if r[1] is not None else ''
+        labels.append(curr_setting + r[3])
+        data.append(r[5])
+    return render_template('perDeviceGraph.html', labels = labels, data = data)
