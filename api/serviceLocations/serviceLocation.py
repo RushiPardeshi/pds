@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import text
 from datetime import datetime
 from db import db
+from validator import validate_integer_text_format
 
 serviceLocation = Blueprint('serviceLocation', __name__)
 
@@ -56,7 +57,6 @@ def addLocation():
         num_beds = payload['nbed']
         num_occupants = payload['noccupants']
         zipcode = payload['zipcode']
-        device_id = str(getNextLocId())
         params = {
             'loc_id': loc_id,
             'cust_id': cust_id,

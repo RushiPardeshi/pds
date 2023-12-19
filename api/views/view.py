@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import text
 from datetime import datetime
 from db import db
+from validator import validate_date_format, validate_integer_text_format
 
 view = Blueprint('view', __name__)
 
@@ -11,6 +12,11 @@ view = Blueprint('view', __name__)
 def customerEnergyConsumed(cust_id):
     start_date = request.get_json()['start_date']
     end_date = request.get_json()['end_date']
+    if not validate_date_format(start_date) or not validate_date_format(end_date):
+        return jsonify({'status': 'error', 'message': 'Date is not in correct format'})
+    if not validate_integer_text_format(cust_id):
+        return jsonify({'status': 'error', 'message': 'Cust id can only be an integer check the URL'})
+    
     params = {'cust_id': cust_id, 'start_date': start_date, 'end_date': end_date}
     query = text('''SELECT
                         sl.cust_id AS cust_id,
@@ -44,6 +50,11 @@ def customerEnergyConsumed(cust_id):
 def locationEnergyUsedAgainstOtherLocations(cust_id):
     start_date = request.get_json()['start_date']
     end_date = request.get_json()['end_date']
+    if not validate_date_format(start_date) or not validate_date_format(end_date):
+        return jsonify({'status': 'error', 'message': 'Date is not in correct format'})
+    if not validate_integer_text_format(cust_id):
+        return jsonify({'status': 'error', 'message': 'Cust id can only be an integer check the URL'})
+    
     params = {'cust_id': cust_id, 'start_date': start_date, 'end_date': end_date}
 
     query = text('''SELECT
@@ -100,9 +111,15 @@ def locationEnergyUsedAgainstOtherLocations(cust_id):
 # Energy consumption per device during a time period
 @view.route('/user/<cust_id>/pdEnergyConsumed/<loc_id>', methods=['GET'])
 def energyConsumedPerDevice(cust_id, loc_id):
-    start_time = request.get_json()['start_date']
-    end_time = request.get_json()['end_date']
-    params = {'start_time': start_time, 'end_time': end_time, 'cust_id': cust_id, 'loc_id': loc_id}
+    start_date = request.get_json()['start_date']
+    end_date = request.get_json()['end_date']
+    if not validate_date_format(start_date) or not validate_date_format(end_date):
+        return jsonify({'status': 'error', 'message': 'Date is not in correct format'})
+    if not validate_integer_text_format(cust_id):
+        return jsonify({'status': 'error', 'message': 'Cust id can only be an integer check the URL'})
+    if not validate_integer_text_format(loc_id):
+        return jsonify({'status': 'error', 'message': 'Location id can only be an integer check the URL'})
+    params = {'start_time': start_date, 'end_time': end_date, 'cust_id': cust_id, 'loc_id': loc_id}
 
     query = text('''Select d.dev_id, e.curr_settings, sl.addr, m.model_name, m.model_type, sum(value) as energy_consumed 
                     from service_loc sl 

@@ -1,0 +1,5 @@
+date_pattern = "^\d{2}-\d{2}-\d{4}$"
+input_string_format = "^[a-zA-Z0-9 .-]+$"
+address_string_format = "^[a-zA-Z0-9 .-,]+$"
+integer_only = "^[0-9]+$"
+zipcode_format = "^\d{5}$"
