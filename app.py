@@ -84,7 +84,7 @@ def login():
       cust_name = ans[0][1]
     print(ans)
 
-      return render_template("model.html")
+    return render_template("model.html")
 
 @app.route('/{cust[cust_id]}/model', methods = ['GET','POST'])
 def model():
