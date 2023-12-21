@@ -2,8 +2,6 @@
 <br>
 <h3>Possible actions : </h3>
 <form>
-    <button type="submit" action="">Show All Devices</button>
-    <button type="submit" action="">Show All Locations</button>
     
     <div id="cust" data-value1={{cust_id}}></div>
     <div id="service_location_container">
@@ -22,16 +20,13 @@
     <br>
     
     <button type="submit" action="">Add Device with provided Location</button>
-    <br><br>
-    <button type="submit" action="">Show All Locations owned by {{name}}</button>
-    <br><br>
-    <button type="submit" action="">Show All Devices owned by {{name}}</button>
 
 </form>
   
 
   <script>
     var loc = "";
+    var flag = 0;
     function updateLocation(cust_id) {
       
       fetch('/user/'+cust_id+'/locations', {
@@ -60,13 +55,17 @@
     }
     const custum = document.getElementById('cust')
     const cid = custum.dataset.value1;
-    const locationSelect = document.getElementById('service_location');
-    locationSelect.addEventListener('mouseover', function() {
-        // console.log("going in func with ", cid)
-        value = locationSelect.selectedIndex;
-        console.log("new func ", cid, value);
-        updateLocation(cid);
-    });
+    if (flag == 0) {
+      updateLocation(cid);
+      flag = 1;
+    }
+    // const locationSelect = document.getElementById('service_location');
+    // locationSelect.addEventListener('click', function() {
+    //     // console.log("going in func with ", cid)
+    //     value = locationSelect.selectedIndex;
+    //     console.log("new func ", cid, value);
+    //     updateLocation(cid);
+    // });
 
     function updateDevices(cust_id, loc_id) {
       // Send an AJAX request to Flask to get devices for the selected location
@@ -95,21 +94,26 @@
     }
 
     var e = document.getElementById("service_location");
-    var value = "";
-    if (e.selectedIndex > -1){
-        console.log("sel ind ", e.selectedIndex)
-        value = e.options[e.selectedIndex].value;
-    }
+    e.addEventListener('change', function() {
+      var selectedAddress = e.value;
+      console.log(selectedAddress);
+      updateDevices(cid, selectedAddress);
+    })
+    // var value = "";
+    // if (e.selectedIndex > -1){
+    //     console.log("sel ind ", e.selectedIndex)
+    //     value = e.options[e.selectedIndex].value;
+    // }
     
-    // var selectedOption = select.options[select.selectedIndex];
-    console.log("user chose : ", value);
-    const DeviceSelect = document.getElementById('device');
-    DeviceSelect.addEventListener('mouseover', function() {
-        value = e.options[e.selectedIndex].value;
-        e = 
-        console.log("new func ", cid, value);
-        updateDevices(cid,value);
-    });
+    // // var selectedOption = select.options[select.selectedIndex];
+    // console.log("user chose : ", value);
+    // const DeviceSelect = document.getElementById('device');
+    // DeviceSelect.addEventListener('mouseover', function() {
+    //     value = e.options[e.selectedIndex].value;
+    //     e = 
+    //     console.log("new func ", cid, value);
+    //     updateDevices(cid,value);
+    // });
 
   </script>
   

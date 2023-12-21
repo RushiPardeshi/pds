@@ -8,10 +8,10 @@ from ..util.validator import validate_integer_text_format
 devices = Blueprint('devices', __name__)
 
 # get devices list with user id
-@devices.route("/devices", methods=['GET'])
-def getDevicesByUserID():
-    result = db.session.execute(text('''Select * from device d''')).fetchall()
-    return result
+# @devices.route("/devices", methods=['GET'])
+# def getDevicesByUserID():
+#     result = db.session.execute(text('''Select * from device d''')).fetchall()
+#     return result
 
 # add device
 @devices.route("/devices", methods=['POST'])
@@ -41,5 +41,6 @@ def deleteDevice(dev_id):
     
 def getNextDeviceId():
     # write a sequence in the database and get id from it
-    last_db_id = db.session.execute(text("Select dev_id from device order by dev_id desc")).fetchone()[0]
+    last_db_id = db.session.execute(text("Select cust_id from customer order by cust_id desc")).fetchone()
+    last_db_id = last_db_id[0] if last_db_id else render_template("error.html", error = {'status': 'unexpected error', 'message': 'Unexpected error'})
     return str(int(last_db_id)+1)

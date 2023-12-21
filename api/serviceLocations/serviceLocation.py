@@ -41,7 +41,8 @@ def getLocations():
 def getLocationsByUserID(loc_id):
     result = db.session.execute(text('''Select * 
                                      from service_loc sl  
-                                     where sl.loc_id = :loc_id'''), params={'loc_id': loc_id}).fetchall()
+                                     where sl.loc_id = :loc_id'''), params={'loc_id': loc_id}).fetchone()
+    result = result[0] if result else render_template("error.html", error = {'status': 'unexpected error', 'message': 'Unexpected error'})
     return result
 
 # add location
@@ -95,5 +96,6 @@ def deleteLocation(loc_id):
     
 def getNextLocId():
     # write a sequence in the database and get id from it
-    last_db_id = db.session.execute(text("Select loc_id from service_loc order by loc_id desc")).fetchone()[0]
+    last_db_id = db.session.execute(text("Select cust_id from customer order by cust_id desc")).fetchone()
+    last_db_id = last_db_id[0] if last_db_id else render_template("error.html", error = {'status': 'unexpected error', 'message': 'Unexpected error'})
     return str(int(last_db_id)+1)
