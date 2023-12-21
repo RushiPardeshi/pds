@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Service Location Management</title>
+</head>
+<body>
+  <h1>Manage Service Locations</h1>
+  <p>Customer ID: <input type="text" id="cust_id" placeholder="Enter Customer ID"></p>
+
+  <div id="location_display">
+    </div>
+
+  <h2>Add New Service Location</h2>
+  <form id="add_location_form" action="">
+    <label for="apt">Apartment: </label>
+    <input type="text" id="apt" required>
+    <br><br>
+    <label for="street">Street: </label>
+    <input type="text" id="street" required>
+    <br><br>
+    <label for="state">State:</label>
+    <input type="text" id="state">
+    <br><br>
+    <button type="submit">Add Location</button>
+  </form>
+
+  <script>
+    // JavaScript code to handle input and interaction
+
+    const custIdInput = document.getElementById('cust_id');
+    const locationDisplay = document.getElementById('location_display');
+    const addLocationForm = document.getElementById('add_location_form');
+
+    custIdInput.addEventListener('change', function() {
+      // Update location display based on cust_id (e.g., AJAX call to server)
+      locationDisplay.innerHTML = "<p>Loading locations...</p>";
+      // Replace with actual code to fetch and display locations
+      
+    });
+
+    addLocationForm.addEventListener('submit', function(event) {
+      event.preventDefault();
+      // Validate and submit form data (e.g., via AJAX call to server)
+      // Update location display and reset form on success
+    });
+  </script>
+</body>
+</html>
