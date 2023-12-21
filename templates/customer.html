@@ -1,6 +1,7 @@
 <h1>Hi, {{name}}</h1>
 <br>
 <h3>Possible actions : </h3>
+<a href="/logout">Logout</a>
 <form>
     
     <div id="cust" data-value1={{cust_id}}></div>
@@ -19,14 +20,20 @@
     </div>
     <br>
     
-    <button type="submit" action="">Add Device with provided Location</button>
+    
+  </form>
+ 
+  <button type="submit" onclick="openAddDevicePage()">Add Device with provided Location</button>
+  <button type="submit" onclick="openAddLocationPage()">Add Location</button>
+  <br><br>
+  <h2>Analytics:</h2>
+  <p><a href="/energy_consumption_form/{{cust_id}}">Energy Consumption (aggregated for all locations)</a></p>
+  <p><a href="/energy_consumption_per_location/{{cust_id}}">Energy Consumption (Location wise)</a></p>
+  <p><a href="/comparison_form/{{cust_id}}">Consumption comparison</a></p>
+  <p><a href="/per_device_consumption/{{cust_id}}">Energy Consumption per device for a location</a></p> 
 
-</form>
-  
 
   <script>
-    var loc = "";
-    var flag = 0;
     function updateLocation(cust_id) {
       
       fetch('/user/'+cust_id+'/locations', {
@@ -55,17 +62,15 @@
     }
     const custum = document.getElementById('cust')
     const cid = custum.dataset.value1;
-    if (flag == 0) {
+    document.addEventListener('DOMContentLoaded', function() {
       updateLocation(cid);
-      flag = 1;
-    }
-    // const locationSelect = document.getElementById('service_location');
-    // locationSelect.addEventListener('click', function() {
-    //     // console.log("going in func with ", cid)
-    //     value = locationSelect.selectedIndex;
-    //     console.log("new func ", cid, value);
-    //     updateLocation(cid);
-    // });
+      setTimeout(function() {
+        var e = document.getElementById("service_location");
+        var selectedAddress = e.value;
+        console.log(selectedAddress);
+        updateDevices(cid, selectedAddress);
+      }, 1000);
+    });
 
     function updateDevices(cust_id, loc_id) {
       // Send an AJAX request to Flask to get devices for the selected location
@@ -99,21 +104,14 @@
       console.log(selectedAddress);
       updateDevices(cid, selectedAddress);
     })
-    // var value = "";
-    // if (e.selectedIndex > -1){
-    //     console.log("sel ind ", e.selectedIndex)
-    //     value = e.options[e.selectedIndex].value;
-    // }
-    
-    // // var selectedOption = select.options[select.selectedIndex];
-    // console.log("user chose : ", value);
-    // const DeviceSelect = document.getElementById('device');
-    // DeviceSelect.addEventListener('mouseover', function() {
-    //     value = e.options[e.selectedIndex].value;
-    //     e = 
-    //     console.log("new func ", cid, value);
-    //     updateDevices(cid,value);
-    // });
+
+    function openAddDevicePage()  {
+      window.location.href = '/add_device_form/{{cust_id}}';
+    }
+
+    function openAddLocationPage() {
+      window.location.href = '/add_location_form/{{cust_id}}';
+    }
 
   </script>
   

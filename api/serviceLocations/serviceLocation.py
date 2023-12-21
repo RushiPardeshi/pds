@@ -46,40 +46,42 @@ def getLocationsByUserID(loc_id):
     return result
 
 # add location
-@serviceLocation.route("/add_location", methods=['POST'])
-def addLocation():
+@serviceLocation.route("/add_location/<cust_id>", methods=['POST'])
+def addLocation(cust_id):
     try:
         payload = request.get_json()
+        print(payload)
         loc_id = getNextLocId()
-        cust_id = payload['cust_id']
         if not validate_integer_text_format(cust_id):
-            return render_template("error.html", error = {'status': 'validation error', 'msg': "validation error occured in customer id pls check"})
-        addr = payload['addr']
+            return jsonify({'status': 'validation error', 'message': "validation error occured in customer id pls check"})
+        addr = payload['address']
         if not validate_input_address_format(addr):
-            return render_template("error.html", error = {'status': 'validation error', 'msg': 'validation error occured, pls verify address field'})
+            return jsonify({'status': 'validation error', 'message': 'validation error occured, pls verify address field'})
         date = datetime.today()
         area = payload['area']
-        num_beds = payload['nbed']
-        num_occupants = payload['noccupants']
+        num_beds = payload['bedrooms']
+        num_occupants = payload['occupants']
         if not validate_integer_text_format(area) or not validate_integer_text_format(num_beds) or not validate_integer_text_format(num_occupants):
-            return render_template("error.html", error = {'status': 'validation error', 'msg': "validation error occured, pls check fields"})
+            return jsonify({'status': 'validation error', 'message': "validation error occured, pls check fields"})
         zipcode = payload['zipcode']
         if not validate_zipcode(zipcode):
-            return render_template("error.html", error = {'status': 'validation error', 'msg': "validation error occured in zipcode"})
+            return jsonify({'status': 'validation error', 'message': "validation error occured in zipcode"})
         params = {
             'loc_id': loc_id,
             'cust_id': cust_id,
             'addr': addr,
             'date': date,
-            'area': area,
-            'nbed': num_beds,
-            'noccupants': num_occupants,
+            'area': float(area),
+            'nbed': int(num_beds),
+            'noccupants': int(num_occupants),
             'zipcode': zipcode
         }
+        print("params" + str(params))
         db.session.execute(text('''Insert into service_loc(loc_id, cust_id, addr, date, area, num_beds, num_occupants, zipcode) 
                                 values (:loc_id, :cust_id, :addr, :date, :area, :nbed, :noccupants, :zipcode)'''), params)
         db.session.commit()
-        return jsonify({'status': 'error', 'msg': 'Record added successfully'})
+        print('committed')
+        return jsonify({'status': 'success', 'message': 'Record added successfully'})
         
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)})
@@ -90,12 +92,12 @@ def deleteLocation(loc_id):
     try:
         db.session.execute(text("Delete from service_loc where loc_id=:loc_id"), params={'loc_id': loc_id})
         db.session.commit()
-        return jsonify({'status': 'success', 'msg': 'Record deleted successfully'})
+        return jsonify({'status': 'success', 'message': 'Record deleted successfully'})
     except Exception as e:
         return render_template("error.html", error = {'status': 'error', 'message': str(e)})
     
 def getNextLocId():
     # write a sequence in the database and get id from it
-    last_db_id = db.session.execute(text("Select cust_id from customer order by cust_id desc")).fetchone()
+    last_db_id = db.session.execute(text("Select loc_id from service_loc where loc_id REGEXP '^[0-9]+$' order by loc_id desc")).fetchone()
     last_db_id = last_db_id[0] if last_db_id else render_template("error.html", error = {'status': 'unexpected error', 'message': 'Unexpected error'})
     return str(int(last_db_id)+1)

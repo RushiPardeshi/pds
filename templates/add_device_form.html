@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Location Form</title>
+</head>
+
+<body>
+
+    <h1>Add device Form</h1>
+
+    <div id="service_location_container">
+        <br>
+        <label for="service_location">Choose Service Location:</label>
+        <select id="service_location" name="service_location">
+        </select>
+    </div>
+    <div id="model_selection_container">
+        <br>
+        <label for="model">Choose Model:</label>
+        <select id="model" name="model">
+        </select>
+    </div>
+    <br><br>
+    <button onclick="saveData()">Submit</button>
+
+    <script>
+        function updateLocation() {
+
+            fetch('/user/' + {{ cust_id }} + '/locations', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+                // body: JSON.stringify({ "cust_id": cust_id })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Clear and populate the device select element
+                //   console.log("in func with response : ", data);
+                const locationSelect = document.getElementById('service_location');
+                locationSelect.innerHTML = '';
+                data.forEach(location => {
+                    const option = document.createElement('option');
+                    option.value = location.loc_id;
+                    option.textContent = location.Address;
+                    // option.selected="selected";
+                    locationSelect.appendChild(option);
+                });
+                //   locationSelect.disabled = false;
+
+            });
+        };
+        function updateModels() {
+
+            fetch('/models', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const modelSelect = document.getElementById('model');
+                modelSelect.innerHTML = '';
+                data.forEach(model => {
+                    const option = document.createElement('option');
+                    option.value = model.model_id;
+                    option.textContent = model.model_type + ' : ' + model.model_name;
+                    modelSelect.appendChild(option);
+                });
+                //   locationSelect.disabled = false;
+
+            });
+        };
+        document.addEventListener('DOMContentLoaded', function() {
+            updateLocation();
+            updateModels();
+        });
+        function saveData() {
+            // Get form values
+            var service_location = document.getElementById("service_location");
+            loc_id = service_location.value;
+
+            var model_loccation = document.getElementById('model');
+            model_id = model_loccation.value;
+
+            // Create JSON payload
+            const payload = {
+                'loc_id': loc_id,
+                'model_id': model_id
+            };
+
+            // Log the JSON payload to the console (you can replace this with your API call)
+            console.log('JSON Payload:', payload);
+
+            fetch('/devices', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('API Response:', data);
+                    if (data['status'] == 'error' || data['status'] == 'validation error') {
+                        alert("Error occured: " + data['message']);
+                    }
+                    if (data['status'] == 'success') {
+                        if (data['message'] != undefined)
+                            alert("Success: " + data['message']);
+                        else
+                            alert("Success: " + data['msg']);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    </script>
+
+</body>
+
+</html>
