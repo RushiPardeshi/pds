@@ -1,3 +1,4 @@
+import json
 from flask import Flask, render_template, request, jsonify, Blueprint
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import text
@@ -95,6 +96,15 @@ def deleteLocation(loc_id):
         return jsonify({'status': 'success', 'message': 'Record deleted successfully'})
     except Exception as e:
         return render_template("error.html", error = {'status': 'error', 'message': str(e)})
+    
+@serviceLocation.route("/locations/<loc_id>", methods=['PUT'])
+def disableLocation(loc_id):
+    try:
+        db.session.execute(text('''update service_loc set enabled=0 where loc_id=:loc_id'''), params={'loc_id': loc_id})
+        db.session.commit()
+        return jsonify({"status": 'success', 'message': 'Successfully disabled'})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)})
     
 def getNextLocId():
     # write a sequence in the database and get id from it

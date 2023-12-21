@@ -131,7 +131,9 @@ def locationEnergyUsedAgainstOtherLocations(cust_id):
                             JOIN
                                 event e2 ON e2.dev_id = d.dev_id
                             WHERE
-                                DATE(e2.timestamp) >= :start_date
+                                sl2.enabled = 1
+                                AND d.enabled = 1
+                                AND DATE(e2.timestamp) >= :start_date
                                 AND DATE(e2.timestamp) < :end_date
                             GROUP BY
                                 sl2.loc_id
@@ -141,6 +143,8 @@ def locationEnergyUsedAgainstOtherLocations(cust_id):
                     AND similar_sl.loc_id != sl1.loc_id
                     WHERE
                         sl1.cust_id = :cust_id
+                        AND sl1.enabled = 1
+                        AND d1.enabled = 1
                         AND DATE(e1.timestamp) >= :start_date
                         AND DATE(e1.timestamp) < :end_date
                     GROUP BY
@@ -182,6 +186,8 @@ def energyConsumedPerDevice(cust_id, loc_id):
                     natural join event e 
                     where sl.cust_id = :cust_id
                     and sl.loc_id = :loc_id
+                    and sl.enabled = 1
+                    and d.enabled = 1
                     and DATE(e.timestamp) between :start_time and :end_time
                     group by d.dev_id, e.curr_settings, sl.addr, m.model_name, m.model_type''')
     

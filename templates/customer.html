@@ -3,115 +3,174 @@
 <h3>Possible actions : </h3>
 <a href="/logout">Logout</a>
 <form>
-    
-    <div id="cust" data-value1={{cust_id}}></div>
-    <div id="service_location_container">
-        <br>
-        <label for="service_location">Choose Service Location:</label>
-        <select id="service_location" name="service_location">
-        </select>
-    </div>
+
+  <div id="cust" data-value1={{cust_id}}></div>
+  <div id="service_location_container">
     <br>
-    <div id="device_container">
-        <label for="device">Choose Device:</label>
-        <select id="device" name="device">
-        <option disabled selected>Select Location First</option>
-        </select>
-    </div>
-    <br>
-    
-    
-  </form>
- 
-  <button type="submit" onclick="openAddDevicePage()">Add Device with provided Location</button>
-  <button type="submit" onclick="openAddLocationPage()">Add Location</button>
-  <br><br>
-  <h2>Analytics:</h2>
-  <p><a href="/energy_consumption_form/{{cust_id}}">Energy Consumption (aggregated for all locations)</a></p>
-  <p><a href="/energy_consumption_per_location/{{cust_id}}">Energy Consumption (Location wise)</a></p>
-  <p><a href="/comparison_form/{{cust_id}}">Consumption comparison</a></p>
-  <p><a href="/per_device_consumption/{{cust_id}}">Energy Consumption per device for a location</a></p> 
+    <label for="service_location">Choose Service Location:</label>
+    <select id="service_location" name="service_location">
+    </select>
+  </div>
+  <br>
+  <div id="device_container">
+    <label for="device">Choose Device:</label>
+    <select id="device" name="device">
+      <option disabled selected>Select Location First</option>
+    </select>
+  </div>
+  <br>
 
 
-  <script>
-    function updateLocation(cust_id) {
-      
-      fetch('/user/'+cust_id+'/locations', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-        // body: JSON.stringify({ "cust_id": cust_id })
-      })
-        .then(response => response.json())
-        .then(data => {
-          // Clear and populate the device select element
+</form>
+
+<h3>Note: Following disable actions take place based on above values entered.</h3>
+<button type="submit" onclick="disableSelectedDevice()">Disable Device with provided Location</button>
+<button type="submit" onclick="disableSelectedLocation()">Disable Location</button>
+<br><br>
+<button type="submit" onclick="openAddDevicePage()">Add Device</button>
+<button type="submit" onclick="openAddLocationPage()">Add Location</button>
+<br><br>
+<h2>Analytics:</h2>
+<p><a href="/energy_consumption_form/{{cust_id}}">Energy Consumption (aggregated for all locations)</a></p>
+<p><a href="/energy_consumption_per_location/{{cust_id}}">Energy Consumption (Location wise)</a></p>
+<p><a href="/comparison_form/{{cust_id}}">Consumption comparison</a></p>
+<p><a href="/per_device_consumption/{{cust_id}}">Energy Consumption per device for a location</a></p>
+
+
+<script>
+  function updateLocation(cust_id) {
+
+    fetch('/user/' + cust_id + '/locations', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+      // body: JSON.stringify({ "cust_id": cust_id })
+    })
+      .then(response => response.json())
+      .then(data => {
+        // Clear and populate the device select element
         //   console.log("in func with response : ", data);
-          const locationSelect = document.getElementById('service_location');
-          locationSelect.innerHTML = '';
-          data.forEach(location => {
-            const option = document.createElement('option');
-            option.value = location.loc_id;
-            option.textContent = location.Address;
-            // option.selected="selected";
-            locationSelect.appendChild(option);
-          });
+        const locationSelect = document.getElementById('service_location');
+        locationSelect.innerHTML = '';
+        data.forEach(location => {
+          const option = document.createElement('option');
+          option.value = location.loc_id;
+          option.textContent = location.Address;
+          // option.selected="selected";
+          locationSelect.appendChild(option);
+        });
         //   locationSelect.disabled = false;
 
-        });
-    }
-    const custum = document.getElementById('cust')
-    const cid = custum.dataset.value1;
-    document.addEventListener('DOMContentLoaded', function() {
-      updateLocation(cid);
-      setTimeout(function() {
-        var e = document.getElementById("service_location");
-        var selectedAddress = e.value;
-        console.log(selectedAddress);
-        updateDevices(cid, selectedAddress);
-      }, 1000);
-    });
-
-    function updateDevices(cust_id, loc_id) {
-      // Send an AJAX request to Flask to get devices for the selected location
-      fetch('/user/'+cust_id+'/locations/'+loc_id+'/devices', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-        // body: JSON.stringify({ "cust_id": cust_id })
-      })
-        .then(response => response.json())
-        .then(data => {
-          // Clear and populate the device select element
-          console.log("in func with response : ", data);
-          const deviceSelect = document.getElementById('device');
-          deviceSelect.innerHTML = '';
-          data.forEach(device => {
-            const option = document.createElement('option');
-            option.value = device.dev_id;
-            option.textContent = device.model_name;
-            
-            deviceSelect.appendChild(option);
-          });
-          deviceSelect.disabled = false;
-        });
-    }
-
-    var e = document.getElementById("service_location");
-    e.addEventListener('change', function() {
+      });
+  }
+  const custum = document.getElementById('cust')
+  const cid = custum.dataset.value1;
+  document.addEventListener('DOMContentLoaded', function () {
+    updateLocation(cid);
+    setTimeout(function () {
+      var e = document.getElementById("service_location");
       var selectedAddress = e.value;
       console.log(selectedAddress);
       updateDevices(cid, selectedAddress);
+    }, 1000);
+  });
+
+  function updateDevices(cust_id, loc_id) {
+    // Send an AJAX request to Flask to get devices for the selected location
+    fetch('/user/' + cust_id + '/locations/' + loc_id + '/devices', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+      // body: JSON.stringify({ "cust_id": cust_id })
     })
+      .then(response => response.json())
+      .then(data => {
+        // Clear and populate the device select element
+        console.log("in func with response : ", data);
+        const deviceSelect = document.getElementById('device');
+        deviceSelect.innerHTML = '';
+        data.forEach(device => {
+          const option = document.createElement('option');
+          option.value = device.dev_id;
+          option.textContent = device.model_type + ': ' + device.model_name;
 
-    function openAddDevicePage()  {
-      window.location.href = '/add_device_form/{{cust_id}}';
-    }
+          deviceSelect.appendChild(option);
+        });
+        deviceSelect.disabled = false;
+      });
+  }
 
-    function openAddLocationPage() {
-      window.location.href = '/add_location_form/{{cust_id}}';
-    }
+  var e = document.getElementById("service_location");
+  e.addEventListener('change', function () {
+    var selectedAddress = e.value;
+    console.log(selectedAddress);
+    updateDevices(cid, selectedAddress);
+  })
 
-  </script>
-  
+  function openAddDevicePage() {
+    window.location.href = '/add_device_form/{{cust_id}}';
+  }
+
+  function openAddLocationPage() {
+    window.location.href = '/add_location_form/{{cust_id}}';
+  }
+
+  function disableSelectedDevice() {
+    selectedDeviceId = document.getElementById('device').value;
+    fetch('/devices/' + selectedDeviceId, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log('API Response:', data);
+        if (data['status'] == 'error' || data['status'] == 'validation error') {
+          alert("Error occured: " + data['message']);
+        }
+        if (data['status'] == 'success') {
+          if (data['message'] != undefined)
+            alert("Success: " + data['message']);
+          else
+            alert("Success: " + data['msg']);
+        }
+        updateDevices(cid, document.getElementById('service_location').value);
+      })
+      .catch(error => console.error('Error:', error));
+  }
+
+  function disableSelectedLocation() {
+    selectedAddress = document.getElementById('service_location').value;
+    fetch('/locations/' + selectedAddress, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+      // body: JSON.stringify({ "cust_id": cust_id })
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log('API Response:', data);
+        if (data['status'] == 'error' || data['status'] == 'validation error') {
+          alert("Error occured: " + data['message']);
+        }
+        if (data['status'] == 'success') {
+          if (data['message'] != undefined)
+            alert("Success: " + data['message']);
+          else
+            alert("Success: " + data['msg']);
+        }
+        updateLocation(cid);
+        setTimeout(function () {
+          var e = document.getElementById("service_location");
+          var selectedAddress = e.value;
+          console.log(selectedAddress);
+          updateDevices(cid, selectedAddress);
+        }, 500);
+      })
+      .catch(error => console.error('Error:', error));
+  }
+</script>

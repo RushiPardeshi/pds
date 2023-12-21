@@ -53,6 +53,15 @@ def deleteDevice(dev_id):
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)})
     
+@devices.route("/devices/<dev_id>", methods=['PUT'])
+def disableLocation(dev_id):
+    try:
+        db.session.execute(text('''update device set enabled=0 where dev_id=:dev_id'''), params={'dev_id': dev_id})
+        db.session.commit()
+        return jsonify({"status": 'success', 'message': 'Successfully disabled'})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)})
+    
 def getNextDeviceId():
     # write a sequence in the database and get id from it
     last_db_id = db.session.execute(text("Select dev_id from device where dev_id REGEXP '^[0-9]+$' order by dev_id desc")).fetchone()

@@ -38,7 +38,7 @@ def getCustomerByUserID():
 def getLocationsByUserID(cust_id):
     if not validate_integer_text_format(cust_id):
         return render_template("error.html", error = {'status': 'validation error', 'message': 'cust id not in correct format'})
-    result = db.session.execute(text('''Select * from service_loc where cust_id = :id'''), params={'id': cust_id}).fetchall()
+    result = db.session.execute(text('''Select * from service_loc where cust_id = :id and enabled=1'''), params={'id': cust_id}).fetchall()
     results = []
     for r in result:
         dic = {}
@@ -61,7 +61,7 @@ def getDevicesByLoc(cust_id, loc_id):
                                      from device d 
                                      natural join service_loc sl 
                                      natural join model m
-                                     where sl.cust_id = :id and sl.loc_id = :loc_id'''), params={'id': cust_id, 'loc_id': loc_id}).fetchall()
+                                     where sl.cust_id = :id and sl.loc_id = :loc_id and d.enabled=1'''), params={'id': cust_id, 'loc_id': loc_id}).fetchall()
     results = []
     for r in result:
         dic = {}  
@@ -71,42 +71,6 @@ def getDevicesByLoc(cust_id, loc_id):
         results.append(dic)
     
     return results
-
-
-# get devices list with user id
-# @customer.route("/user/<cust_id>/devices", methods=['GET'])
-# def getDevicesByUserID(cust_id):
-#     result = db.session.execute(text('''Select d.dev_id, m.model_name, m.model_type 
-#                                      from device d 
-#                                      natural join service_loc sl 
-#                                      natural join model m
-#                                      where sl.cust_id = :id'''), params={'id': cust_id}).fetchall()
-#     # results = []
-#     # for r in result:
-#     #     dic = {}
-#     #     dic['dev_id'] = r[0]
-#     #     dic['model_name'] = r[1]
-#     #     dic['model_type'] = r[2]
-#     return result
-#     # return render_template('model.html')
-    
-    
-# get devices list with user id
-# @customer.route("/user/<cust_id>/devices", methods=['GET'])
-# def getDevicesByUserID(cust_id):
-#     result = db.session.execute(text('''Select d.dev_id, m.model_name, m.model_type 
-#                                      from device d 
-#                                      natural join service_loc sl 
-#                                      natural join model m
-#                                      where sl.cust_id = :id'''), params={'id': cust_id}).fetchall()
-#     # results = []
-#     # for r in result:
-#     #     dic = {}
-#     #     dic['dev_id'] = r[0]
-#     #     dic['model_name'] = r[1]
-#     #     dic['model_type'] = r[2]
-#     return result
-#     # return render_template('model.html')
     
 
 # add user
