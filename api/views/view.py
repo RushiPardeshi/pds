@@ -30,6 +30,8 @@ def customerEnergyConsumed(cust_id):
                         event e
                     WHERE
                         sl.cust_id = :cust_id
+                        AND sl.enabled = 1
+                        AND d.enabled = 1
                         AND e.label = 'energy use'
                         AND DATE(e.timestamp) >= :start_date
                         AND DATE(e.timestamp) < :end_date
@@ -70,6 +72,8 @@ def customerEnergyConsumedForLocation(cust_id, loc_id):
                     WHERE
                         sl.cust_id = :cust_id
                         AND sl.loc_id = :loc_id
+                        AND sl.enabled = 1
+                        AND d.enabled = 1
                         AND e.label = 'energy use'
                         AND DATE(e.timestamp) >= :start_date
                         AND DATE(e.timestamp) < :end_date
@@ -106,7 +110,7 @@ def locationEnergyUsedAgainstOtherLocations(cust_id):
                         sl1.loc_id AS service_location_id,
                         sl1.addr AS address,
                         SUM(e1.value) AS energy_consumed,
-                        (SUM(e1.value) / AVG(similar_sl.total_energy_consumption)) * 100 AS relative_energy_consumed_percentage
+                        AVG(similar_sl.total_energy_consumption) AS relative_energy_consumed_percentage
                     FROM
                         service_loc sl1
                     JOIN
@@ -127,7 +131,9 @@ def locationEnergyUsedAgainstOtherLocations(cust_id):
                             JOIN
                                 event e2 ON e2.dev_id = d.dev_id
                             WHERE
-                                DATE(e2.timestamp) >= :start_date
+                                sl2.enabled = 1
+                                AND d.enabled = 1
+                                AND DATE(e2.timestamp) >= :start_date
                                 AND DATE(e2.timestamp) < :end_date
                             GROUP BY
                                 sl2.loc_id
@@ -137,6 +143,8 @@ def locationEnergyUsedAgainstOtherLocations(cust_id):
                     AND similar_sl.loc_id != sl1.loc_id
                     WHERE
                         sl1.cust_id = :cust_id
+                        AND sl1.enabled = 1
+                        AND d1.enabled = 1
                         AND DATE(e1.timestamp) >= :start_date
                         AND DATE(e1.timestamp) < :end_date
                     GROUP BY
@@ -147,13 +155,13 @@ def locationEnergyUsedAgainstOtherLocations(cust_id):
     address, energy_consumed, relative_energy_consumption_percentage = [], [], []
     for r in result:
         address.append(r[1])
-        energy_consumed.append([r[2], r[3]])
+        energy_consumed.append(r[2])
         relative_energy_consumption_percentage.append(r[3])
 
-    for i in range(1,10):
-        address.append("sample" + str(i))
-        energy_consumed.append(i*10)
-        relative_energy_consumption_percentage.append(i*11)
+    # for i in range(1,10):
+    #     address.append("sample" + str(i))
+    #     energy_consumed.append(i*10)
+    #     relative_energy_consumption_percentage.append(i*11)
 
     return render_template('comparison.html', labels = address, energy_consumed = energy_consumed, relative_percentage_data = relative_energy_consumption_percentage)
 
@@ -178,6 +186,8 @@ def energyConsumedPerDevice(cust_id, loc_id):
                     natural join event e 
                     where sl.cust_id = :cust_id
                     and sl.loc_id = :loc_id
+                    and sl.enabled = 1
+                    and d.enabled = 1
                     and DATE(e.timestamp) between :start_time and :end_time
                     group by d.dev_id, e.curr_settings, sl.addr, m.model_name, m.model_type''')
     

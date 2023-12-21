@@ -1,5 +1,6 @@
-# import common
 import re
+from flask import redirect, url_for, session
+
 date_pattern = "^\d{4}-\d{2}-\d{2}$"
 input_string_format = "^[a-zA-Z0-9 .-]+$"
 address_string_format = "^[a-zA-Z0-9 ,.-]+$"

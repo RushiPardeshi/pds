@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Energy Consumed</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <h3>Start date:</h3>
+    <input type="date" id="start_date">
+    <h3>End date:</h3>
+    <input type="date" id="end_date">
+    <br><br>
+    <button type="submit" onclick="captureDate()">Generate</button>
+    <br><br><br>
+    <div id="renderedContent"></div>
+    <script>
+        function captureDate() {
+            var start_date = document.getElementById('start_date').value;
+            var end_date = document.getElementById('end_date').value;
+            console.log(start_date);
+            console.log(end_date);
+            fetch('/user/' + {{ cust_id }} + '/energyCompare' + '?start_date=' + start_date + '&end_date=' + end_date, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+                // body: JSON.stringify({ "cust_id": cust_id })
+            })
+                .then(response => response.text())
+            .then(htmlContent => {
+                // Inject the HTML content into the 'renderedContent' div
+                // Use DOMParser to parse the HTML content
+                const parser = new DOMParser();
+                const parsedDocument = parser.parseFromString(htmlContent, 'text/html');
+
+                // Extract scripts from the parsed document
+                const scripts = parsedDocument.querySelectorAll('script');
+
+                // Create a new div to hold non-script content
+                const nonScriptContent = document.createElement('div');
+
+                // Iterate over non-script elements and append them to the new div
+                parsedDocument.body.childNodes.forEach(node => {
+                    if (node.tagName !== 'SCRIPT') {
+                        nonScriptContent.appendChild(node.cloneNode(true));
+                    }
+                });
+
+                // Inject non-script content into the 'renderedContent' div
+                document.getElementById('renderedContent').appendChild(nonScriptContent);
+
+                // Evaluate and execute each script
+                scripts.forEach(script => {
+                    const scriptElement = document.createElement('script');
+                    console.log(scriptElement);
+                    scriptElement.textContent = script.textContent;
+                    document.body.appendChild(scriptElement);
+                });
+            });
+        }
+    </script>
+</body>
+
+</html>
