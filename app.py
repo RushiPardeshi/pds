@@ -12,7 +12,7 @@ from api.views.addForms import addforms
 from db import init_app, db
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:root123@localhost/shems'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:animefreak@localhost/project'
 app.register_blueprint(devices)
 app.register_blueprint(serviceLocation)
 app.register_blueprint(customer)

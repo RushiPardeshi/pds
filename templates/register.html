@@ -57,7 +57,10 @@
                     if (data['url'] != undefined) {
                         alert("Success: User created successfully");
                         window.location.href = data['url'];
+                    } else {
+                        alert('Error occurred: Incorrect data format');
                     }
+
                 })
                 .catch(error => console.error('Error:', error));
         }

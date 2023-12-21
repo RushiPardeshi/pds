@@ -18,6 +18,7 @@
     <h3>Start date:</h3>
     <input type="date" id="start_date">
     <h3>End date:</h3>
+    <div id="cust" data-value1="{{cust_id}}"></div>
     <input type="date" id="end_date">
     <br><br>
     <button type="submit" onclick="generateGraph()">Generate</button>
@@ -29,7 +30,9 @@
             var end_date = document.getElementById('end_date').value;
             console.log(start_date);
             console.log(end_date);
-            fetch('/user/' + {{ cust_id }} + '/energyConsumed?start_date=' + start_date + '&end_date=' + end_date, {
+            const cust = document.getElementById('cust')
+            const cid = cust.dataset.value1;
+            fetch('/user/' + cid + '/energyConsumed?start_date=' + start_date + '&end_date=' + end_date, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'

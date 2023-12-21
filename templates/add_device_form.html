@@ -8,6 +8,7 @@
 </head>
 
 <body>
+    <div id="cust" data-value1="{{cust_id}}"></div>
 
     <h1>Add device Form</h1>
 
@@ -28,8 +29,9 @@
 
     <script>
         function updateLocation() {
-
-            fetch('/user/' + {{ cust_id }} + '/locations', {
+            const cust = document.getElementById('cust')
+            const cid = cust.dataset.value1;
+            fetch('/user/' + cid + '/locations', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'

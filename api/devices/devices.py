@@ -32,7 +32,7 @@ def addDeviceForLocation():
     payload = request.get_json()
     loc_id = payload["loc_id"]
     model_id = payload["model_id"]
-    if not validate_integer_text_format(loc_id) or validate_integer_text_format(model_id):
+    if not validate_integer_text_format(loc_id):
         return render_template("error.html", error = {'status': 'validation error', 'message': 'Please check the entered strings they may not of the correct format'})
     device_id = str(getNextDeviceId())
     params = {'loc_id': loc_id, 'model_id': model_id, 'device_id': device_id}

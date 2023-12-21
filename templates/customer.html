@@ -2,6 +2,7 @@
 <br>
 <h3>Possible actions : </h3>
 <a href="/logout">Logout</a>
+<button style="background-color: red; color: white;" onclick="deleteAccount()">Remove Account with Data</button>
 <form>
 
   <div id="cust" data-value1={{cust_id}}></div>
@@ -115,6 +116,22 @@
 
   function openAddLocationPage() {
     window.location.href = '/add_location_form/{{cust_id}}';
+  }
+
+  function deleteAccount(){
+    var confirmDelete = confirm('Are you sureyou want to delete your account?')
+    if (confirmDelete) {  fetch('/user/{{cust_id}}/delacc',{
+        method:'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+        .then(response => response.json())
+        .then(data => {
+          console.log('kisko udana hai ', data)
+        })
+    }
+    // window.location.href='/';
   }
 
   function disableSelectedDevice() {

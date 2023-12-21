@@ -97,6 +97,21 @@ def addUser():
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)})
 
+@customer.route("/user/<cust_id>/delacc",methods=['DELETE'])
+def deleteAcc(cust_id):
+    if not validate_integer_text_format(cust_id):
+        return render_template("error.html", error = {'status': 'validation error', 'message': 'cust id not in correct format'})
+    try:
+        db.session.execute(text(f'delete from event where dev_id in (select dev_id from device natural join service_loc sl where sl.cust_id={cust_id})'))
+        db.session.execute(text(f'delete from device where loc_id in (select loc_id as lid from service_loc sl where sl.cust_id={cust_id})'))
+        db.session.execute(text(f'delete from service_loc where cust_id={cust_id}'))
+        db.session.execute(text(f'delete from customer where cust_id="{cust_id}"'))
+        db.session.commit()
+
+        return render_template('index.html')
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)})
+
 # delete user
 @customer.route("/user/<cust_id>/del", methods=['DELETE'])
 def deleteDevice(cust_id):
