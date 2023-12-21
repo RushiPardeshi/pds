@@ -2,7 +2,7 @@ from flask import Blueprint, Flask, render_template, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import text
 from datetime import datetime
-from api.util.validator import validate_input_address_format, validate_integer_text_format
+from api.util.validator import validate_input_address_format, validate_input_text_format, validate_integer_text_format
 from db import db
 
 customer = Blueprint('customer', __name__)
@@ -16,7 +16,7 @@ def getCustomerByUserID():
     address = request.args.get('address')
     if not validate_input_address_format(address):
         return render_template("error.html", error = {'status': 'validation error', 'message': 'address not in correct format'})
-    if not validate_integer_text_format(name):
+    if not validate_input_text_format(name):
         return render_template("error.html", error = {'status': 'validation error', 'message': 'name not in correct format'})
     # name = request.form['name']
     # address = request.form['address']
