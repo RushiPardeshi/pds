@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import text
 from datetime import datetime
 from db import db
-from validator import validate_integer_text_format
+from ..util.validator import validate_integer_text_format
 
 devices = Blueprint('devices', __name__)
 
@@ -19,7 +19,7 @@ def addDeviceForLocation():
     loc_id = request.form["loc_id"]
     model_id = request.form["model_id"]
     if not validate_integer_text_format(loc_id) or validate_integer_text_format(model_id):
-        return jsonify({'status': 'validation error', 'message': 'Please check the entered strings they may not of the correct format'})
+        return render_template("error.html", error = {'status': 'validation error', 'message': 'Please check the entered strings they may not of the correct format'})
     device_id = str(getNextDeviceId())
     params = {'loc_id': loc_id, 'model_id': model_id, 'device_id': device_id}
     db.session.execute(text('''Insert into device (dev_id, loc_id, model_id) values
@@ -31,7 +31,7 @@ def addDeviceForLocation():
 @devices.route("/devices/<dev_id>", methods=['DELETE'])
 def deleteDevice(dev_id):
     if not validate_integer_text_format(dev_id):
-        return jsonify({'status': 'validation error', 'message': 'Dev id not in correct format'})
+        return render_template("error.html", error = {'status': 'validation error', 'message': 'Dev id not in correct format'})
     try:
         db.session.execute(text("Delete from device where dev_id=:id"), params={'id': dev_id})
         db.session.commit()

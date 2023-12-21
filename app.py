@@ -1,15 +1,16 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import text
 from datetime import datetime
 from api.devices.devices import devices
 from api.serviceLocations.serviceLocation import serviceLocation
 from api.user.customer import customer
+from api.util.validator import validate_date_format, validate_integer_text_format
 from api.views.view import view
 from db import init_app, db
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://rushipardeshi:animefreak@localhost/project'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:root123@localhost/shems'
 app.register_blueprint(devices)
 app.register_blueprint(serviceLocation)
 app.register_blueprint(customer)
@@ -89,6 +90,45 @@ def login():
 @app.route('/{cust[cust_id]}/model', methods = ['GET','POST'])
 def model():
     return render_template("register.html")
+
+@app.route('/user/<cust_id>/energyConsumed', methods=['GET'])
+def customerEnergyConsumed(cust_id):
+    start_date = request.args.get('start_date')
+    end_date = request.args.get('end_date')
+    if not validate_date_format(start_date) or not validate_date_format(end_date):
+        return render_template("error.html", error = {'status': 'error', 'message': 'Date is not in correct format'})
+    if not validate_integer_text_format(cust_id):
+        return jsonify({'status': 'error', 'message': 'Cust id can only be an integer check the URL'})
+    
+    params = {'cust_id': cust_id, 'start_date': start_date, 'end_date': end_date}
+    query = text('''SELECT
+                        sl.cust_id AS cust_id,
+                        DATE(e.timestamp) AS Date,
+                        SUM(e.value) AS `Energy Consumed`
+                    FROM
+                        service_loc sl
+                    NATURAL JOIN
+                        device d
+                    NATURAL JOIN
+                        event e
+                    WHERE
+                        sl.cust_id = :cust_id
+                        AND e.label = 'energy use'
+                        AND DATE(e.timestamp) >= :start_date
+                        AND DATE(e.timestamp) < :end_date
+                    GROUP BY
+                        sl.cust_id,
+                        DATE(e.timestamp)
+                    ORDER BY
+                        DATE(e.timestamp)''')
+    result = db.session.execute(query, params)
+
+    date_labels, energy_consumed_data = [], []
+    for r in result:
+        date_labels.append(r[1].strftime("%Y-%m-%d"))
+        energy_consumed_data.append(r[2])
+
+    return render_template("energyConsumed.html", date_labels = date_labels, values = energy_consumed_data)
 
 if __name__ == '__main__':
     app.run(debug=True)

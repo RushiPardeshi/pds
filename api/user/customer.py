@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import text
 from datetime import datetime
 from db import db
-from validator import validate_integer_text_format, validate_input_text_format, validate_input_address_format
+from ..util.validator import validate_integer_text_format, validate_input_text_format, validate_input_address_format
 
 customer = Blueprint('customer', __name__)
 
@@ -28,7 +28,7 @@ def getCustomer():
 @customer.route("/user/<cust_id>/locations", methods=['GET'])
 def getLocationsByUserID(cust_id):
     if not validate_integer_text_format(cust_id):
-        return jsonify({'status': 'error', 'message': 'Cust id can only be an integer check the URL'})
+        return render_template("error.html", error = {'status': 'error', 'message': 'Cust id can only be an integer check the URL'})
     result = db.session.execute(text('''Select * from service_loc where cust_id = :id'''), params={'id': cust_id}).fetchall()
     results = []
     for r in result:
@@ -49,7 +49,7 @@ def getLocationsByUserID(cust_id):
 @customer.route("/user/<cust_id>/devices", methods=['GET'])
 def getDevicesByUserID(cust_id):
     if not validate_integer_text_format(cust_id):
-        return jsonify({'status': 'error', 'message': 'Cust id can only be an integer check the URL'})
+        return render_template("error.html", error = {'status': 'error', 'message': 'Cust id can only be an integer check the URL'})
     result = db.session.execute(text('''Select d.dev_id, m.model_name, m.model_type 
                                      from device d 
                                      natural join service_loc sl 
@@ -80,19 +80,19 @@ def addLocation():
         return jsonify({'status': 'error', 'msg': 'Record added successfully'})
         
     except Exception as e:
-        return jsonify({'status': 'error', 'message': str(e)})
+        return render_template("error.html", error = {'status': 'error', 'message': str(e)})
 
 # delete user
 @customer.route("/user/<cust_id>", methods=['DELETE'])
 def deleteDevice(cust_id):
     if not validate_integer_text_format(cust_id):
-        return jsonify({'status': 'error', 'message': 'Cust id can only be an integer check the URL'})
+        return render_template("error.html", error = {'status': 'error', 'message': 'Cust id can only be an integer check the URL'})
     try:
         db.session.execute(text("Delete from customer where cust_id=:id"), params={'id': cust_id})
         db.session.commit()
         return jsonify({'status': 'error', 'msg': 'Record deleted successfully'})
     except Exception as e:
-        return jsonify({'status': 'error', 'message': str(e)})
+        return render_template("error.html", error = {'status': 'error', 'message': str(e)})
     
 def getNextCustId():
     # write a sequence in the database and get id from it

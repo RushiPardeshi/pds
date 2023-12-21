@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import text
 from datetime import datetime
 from db import db
-from validator import validate_integer_text_format
+from ..util.validator import validate_input_address_format, validate_integer_text_format, validate_zipcode
 
 serviceLocation = Blueprint('serviceLocation', __name__)
 
@@ -51,12 +51,20 @@ def addLocation():
         payload = request.get_json()
         loc_id = getNextLocId()
         cust_id = payload['cust_id']
+        if not validate_integer_text_format(cust_id):
+            return render_template("error.html", error = {'status': 'validation error', 'msg': "validation error occured in customer id pls check"})
         addr = payload['addr']
+        if not validate_input_address_format(addr):
+            return render_template("error.html", error = {'status': 'validation error', 'msg': 'validation error occured, pls verify address field'})
         date = datetime.today()
         area = payload['area']
         num_beds = payload['nbed']
         num_occupants = payload['noccupants']
+        if not validate_integer_text_format(area) or not validate_integer_text_format(num_beds) or not validate_integer_text_format(num_occupants):
+            return render_template("error.html", error = {'status': 'validation error', 'msg': "validation error occured, pls check fields"})
         zipcode = payload['zipcode']
+        if not validate_zipcode(zipcode):
+            return render_template("error.html", error = {'status': 'validation error', 'msg': "validation error occured in zipcode"})
         params = {
             'loc_id': loc_id,
             'cust_id': cust_id,
@@ -81,9 +89,9 @@ def deleteLocation(loc_id):
     try:
         db.session.execute(text("Delete from service_loc where loc_id=:loc_id"), params={'loc_id': loc_id})
         db.session.commit()
-        return jsonify({'status': 'error', 'msg': 'Record deleted successfully'})
+        return jsonify({'status': 'success', 'msg': 'Record deleted successfully'})
     except Exception as e:
-        return jsonify({'status': 'error', 'message': str(e)})
+        return render_template("error.html", error = {'status': 'error', 'message': str(e)})
     
 def getNextLocId():
     # write a sequence in the database and get id from it

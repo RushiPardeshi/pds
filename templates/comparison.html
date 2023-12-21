@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Energy Consumed</title>
+        <script src = "https://cdn.jsdelivr.net/npm/chart.js"></script>
+    </head>
+    <body>
+        <h2>Energy Consumed per household comparing other similar locations</h2>
+        <canvas id="barChart" width="900" height = "400"></canvas>
+        <script>
+            var ctx = document.getElementById("barChart");
+            var barChart = new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels: {{ labels | safe }},
+                    datasets: [
+                        {
+                        label: 'Energy consumed',
+                        backgroundColor: 'rgb(255, 99, 132)',
+                        borderColor: 'rgb(255, 99, 132)',
+                        data: {{ energy_consumed | safe}},
+                        },
+                        {
+                        label: 'Relative energy consumed by other households',
+                        backgroundColor: 'rgb(54, 162, 235)',
+                        borderColor: 'rgb(54, 162, 235)',
+                        data: {{ relative_percentage_data | safe}},
+                        }
+                    ]
+                },
+                options: {
+                    responsive: false
+                }
+            });
+        </script>
+    </body>
+</html>
