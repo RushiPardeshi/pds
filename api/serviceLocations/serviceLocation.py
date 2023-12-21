@@ -45,7 +45,7 @@ def getLocationsByUserID(loc_id):
     return result
 
 # add location
-@serviceLocation.route("/location", methods=['POST'])
+@serviceLocation.route("/add_location", methods=['POST'])
 def addLocation():
     try:
         payload = request.get_json()

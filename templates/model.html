@@ -7,25 +7,63 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Smart Device Information</h1>
+    <h1>Hi {{name}}, Welcome to Smart Device Information</h1>
     <form action="/submit_info" method="post">
         <label for="device_type">Device Type:</label>
         <select id="device_type" name="device_type">
             <option value="">Select...</option>
-            <option value="refrigerator">Refrigerator</option>
-            <option value="fan">Fan</option>
-            <option value="light">Light</option>
         </select>
-        <br>
+        <br><br>
         <label for="device_model">Device Model:</label>
         <select id="device_model" name="device_model">
             <option value="">Select...</option>
-            <option value="philips-bulb">philips-bulb</option>
-            <option value="dyson-fan">dyson-fan</option>
-            <option value="lg-fridge">lg-fridge</option>
         </select>
-        <br>
-        <button type="submit">Submit</button>
+        <br><br>
+        <button type="add">Add</button>
+        <button type="analyze">Analyze</button>
+        <button type="deactivate">Deactivate</button>
     </form>
+
+    <script>
+        const deviceTypeSelect = document.getElementById('device_type');
+        const deviceModelSelect = document.getElementById('device_model');
+
+        function fetchDeviceTypes() {
+            fetch('/get_device_types')
+                .then(response => response.json())
+                .then(data => {
+                    data.types.forEach(type => {
+                        const option = document.createElement('option');
+                        option.value = type;
+                        option.innerText = type;
+                        deviceTypeSelect.appendChild(option);
+                    });
+                });
+        }
+
+        function fetchDeviceModels(type) {
+            fetch(`/get_device_models/${type}`)
+                .then(response => response.json())
+                .then(data => {
+                    deviceModelSelect.innerHTML = "";
+                    const blankOption = document.createElement('option');
+                    blankOption.value = "";
+                    blankOption.innerText = "Select...";
+                    deviceModelSelect.appendChild(blankOption);
+                    data.models.forEach(model => {
+                        const option = document.createElement('option');
+                        option.value = model;
+                        option.innerText = model;
+                        deviceModelSelect.appendChild(option);
+                    });
+                });
+        }
+
+        deviceTypeSelect.addEventListener('change', function() {
+            fetchDeviceModels(this.value);
+        });
+
+        fetchDeviceTypes(); // Pre-populate device types
+    </script>
 </body>
 </html>
